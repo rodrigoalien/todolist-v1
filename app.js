@@ -11,11 +11,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true});
 
-const itensSchema = {
+const itemsSchema = {
     name: String
 };
 
-const Item = mongoose.model("Item", itensSchema);
+const Item = mongoose.model("Item", itemsSchema);
 
 const item1 = new Item({
     name: "Welcome to your todolist!"
@@ -30,6 +30,13 @@ const item3 = new Item({
 });
 
 const defaultItens = [item1, item2, item3];
+
+const listSchema = {
+    name: String,
+    items: [itemsSchema]
+};
+
+const List = mongoose.model("List", listSchema);
 
 app.get("/", function(req, res) {
     
@@ -50,6 +57,18 @@ app.get("/", function(req, res) {
             });
         }
     });
+});
+
+app.get("/:listName", function(req, res){
+    const listName = req.params.listName;
+
+    const list = new List({
+        name: listName,
+        items: defaultItens
+    });
+
+    list.save();
+
 });
 
 app.post("/", function(req, res){
@@ -81,13 +100,14 @@ app.get("/about", function(req, res) {
     res.render("about");
 });
 
-app.get("/work", function(req, res){
 
-    res.render("list", {
-        listTitle: "Work List",
-        newListItem: workItems
-    });
-});
+// app.get("/work", function(req, res){
+
+//     res.render("list", {
+//         listTitle: "Work List",
+//         newListItem: workItems
+//     });
+// });
 
 app.post("/work", function(req, res){
 
