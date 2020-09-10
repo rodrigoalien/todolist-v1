@@ -61,12 +61,10 @@ app.get("/", function(req, res) {
 
 app.get("/:listName", function(req, res){
     const listName = req.params.listName;
-    console.log(listName);
 
     List.findOne({name: listName}, function(err, foundList){
         if(!err){
             if(!foundList){
-                console.log("List doesn't exist!");
 
                 const list = new List({
                     name: listName,
@@ -74,13 +72,16 @@ app.get("/:listName", function(req, res){
                 });
             
                 list.save();
+                res.redirect("/" + listName);
+
             } else{
-                console.log("List alrery exist!");
                 res.render("list", {
                     listTitle: foundList.name,
                     newListItem: foundList.items
                 });
             }
+        } else {
+            console.log(err);
         }
     });
 });
@@ -113,22 +114,6 @@ app.post("/delete", function(req, res){
 app.get("/about", function(req, res) {
     res.render("about");
 });
-
-
-// app.get("/work", function(req, res){
-
-//     res.render("list", {
-//         listTitle: "Work List",
-//         newListItem: workItems
-//     });
-// });
-
-// app.post("/work", function(req, res){
-
-//     const item = req.body.newItem;
-//     workItems.push(item);
-//     res.redirect("/work");
-// });
 
 app.listen(3000, function(){
     console.log("Server started on port 3000...");
