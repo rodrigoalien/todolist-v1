@@ -61,14 +61,28 @@ app.get("/", function(req, res) {
 
 app.get("/:listName", function(req, res){
     const listName = req.params.listName;
+    console.log(listName);
 
-    const list = new List({
-        name: listName,
-        items: defaultItens
+    List.findOne({name: listName}, function(err, foundList){
+        if(!err){
+            if(!foundList){
+                console.log("List doesn't exist!");
+
+                const list = new List({
+                    name: listName,
+                    items: defaultItens
+                });
+            
+                list.save();
+            } else{
+                console.log("List alrery exist!");
+                res.render("list", {
+                    listTitle: foundList.name,
+                    newListItem: foundList.items
+                });
+            }
+        }
     });
-
-    list.save();
-
 });
 
 app.post("/", function(req, res){
@@ -109,12 +123,12 @@ app.get("/about", function(req, res) {
 //     });
 // });
 
-app.post("/work", function(req, res){
+// app.post("/work", function(req, res){
 
-    const item = req.body.newItem;
-    workItems.push(item);
-    res.redirect("/work");
-});
+//     const item = req.body.newItem;
+//     workItems.push(item);
+//     res.redirect("/work");
+// });
 
 app.listen(3000, function(){
     console.log("Server started on port 3000...");
