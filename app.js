@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 
 const app = express();
 
@@ -48,8 +49,8 @@ app.get("/", function(req, res) {
                 } else{
                     console.log("Itens successfully save!");
                 }
-            });
-            res.redirect("/");
+                res.redirect("/");
+            });     
         } else {
             res.render("list", {
                 listTitle: "Today",
@@ -60,8 +61,8 @@ app.get("/", function(req, res) {
 });
 
 app.get("/:listName", function(req, res){
-    const listName = req.params.listName;
-
+    const listName = _.capitalize(req.params.listName);
+    console.log(listName);
     List.findOne({name: listName}, function(err, foundList){
         if(!err){
             if(!foundList){
@@ -71,9 +72,9 @@ app.get("/:listName", function(req, res){
                     items: defaultItens
                 });
             
-                list.save();
-                res.redirect("/" + listName);
-
+                list.save(function(err, result){
+                    res.redirect("/" + listName);
+                });
             } else{
                 res.render("list", {
                     listTitle: foundList.name,
@@ -93,15 +94,17 @@ app.post("/", function(req, res){
     const item = new Item({
         name: itemName
     });
-    console.log(listName);
+    console.log("post" + listName);
     if(listName === "Today"){
-        item.save();
-        res.redirect("/");
+        item.save(function(err, result){
+            res.redirect("/");
+        });
     } else{
         List.findOne({name: listName}, function(err, foundList){
             foundList.items.push(item);
-            foundList.save();
-            res.redirect("/" + listName);
+            foundList.save(function(err, resutl){
+                res.redirect("/" + listName);
+            });
         });
     }
     
